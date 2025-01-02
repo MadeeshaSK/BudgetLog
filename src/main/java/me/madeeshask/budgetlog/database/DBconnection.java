@@ -10,7 +10,6 @@ public class DBconnection {
     public static Connection connect() {
         Connection conn = null;
         try {
-            // Specify the relative path to your database file
             String url = "jdbc:sqlite:src/main/java/me/madeeshask/budgetlog/database/BudgetLog.db";
             conn = DriverManager.getConnection(url);
             System.out.println("Connection to SQLite has been established.");
@@ -21,7 +20,7 @@ public class DBconnection {
     }
 
     public static void main(String[] args) {
-        connect(); // Test the connection
+        connect();
     }
     
 }

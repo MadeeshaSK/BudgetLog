@@ -5,6 +5,9 @@
     <artifactId>BudgetLog</artifactId>
     <version>1.0v</version>
     <packaging>jar</packaging>
+    
+   
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
@@ -20,8 +23,11 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.47.1.0</version>
         </dependency>
-
-        
+        <dependency>
+            <groupId>org.netbeans.external</groupId>
+            <artifactId>AbsoluteLayout</artifactId>
+            <version>RELEASE230</version>
+        </dependency>
     </dependencies>
     <name>BudgetLog</name>
     <description>A simple Java Swing desktop application for managing daily budget entries and monitoring expenses. This project is designed to help users track their spending and maintain financial control through an intuitive user interface.</description>
