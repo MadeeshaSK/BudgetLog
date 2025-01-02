@@ -23,5 +23,6 @@
 
         
     </dependencies>
-    
+    <name>BudgetLog</name>
+    <description>A simple Java Swing desktop application for managing daily budget entries and monitoring expenses. This project is designed to help users track their spending and maintain financial control through an intuitive user interface.</description>
 </project>
