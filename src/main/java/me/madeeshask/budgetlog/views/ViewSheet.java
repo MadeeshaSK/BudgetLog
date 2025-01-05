@@ -7,6 +7,10 @@ public class ViewSheet extends javax.swing.JFrame {
 
     
     public ViewSheet() {
+        this(3);
+    }
+
+    public ViewSheet(int par) {
         initComponents();
     }
 

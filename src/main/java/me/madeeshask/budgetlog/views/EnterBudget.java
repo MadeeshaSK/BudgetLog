@@ -14,13 +14,16 @@ import javax.swing.JOptionPane;
 import me.madeeshask.budgetlog.utils.Utils;
 import javax.swing.SwingUtilities;
 import me.madeeshask.budgetlog.database.DBconnection;
+
 public class EnterBudget extends javax.swing.JFrame {
 
     public int sheetId;
+    public int userId;
 
-    public EnterBudget(int sheetId) {
+    public EnterBudget(int userId, int sheetId) {
         initComponents();
         this.sheetId = sheetId;
+        this.userId = userId;
         conScaleImage();
         conSetWindowProperties(); 
         consetLabelFont();
@@ -53,7 +56,7 @@ public class EnterBudget extends javax.swing.JFrame {
             Utils.setLabelFont(labelHeading, "fonts/Roboto-Bold.ttf", Font.BOLD, 24);
             Utils.setLabelFont(labelSheetname, "fonts/Roboto-Bold.ttf", Font.BOLD, 18);
             Utils.setLabelFont(labelHeading3, "fonts/Roboto-Bold.ttf", Font.BOLD, 18);
-            Utils.setLabelFont(labelHeading1, "fonts/Roboto-Bold.ttf", Font.BOLD, 28);
+            Utils.setLabelFont(labelHeading1, "fonts/Roboto-Bold.ttf", Font.BOLD, 18);
             
             // add label fonts here
         } catch (IOException ex) {
@@ -63,13 +66,18 @@ public class EnterBudget extends javax.swing.JFrame {
     
     // add focusing in constructer
     public void conFacus() {
+        SwingUtilities.invokeLater(() -> {
+            incomec1.requestFocus();
+        });
+        
         incomec1.addActionListener(e -> incomec2.requestFocus());
         incomec2.addActionListener(e -> incomec3.requestFocus());
         incomec3.addActionListener(e -> incomeco.requestFocus());
         incomeco.addActionListener(e -> expensec1.requestFocus());
         expensec1.addActionListener(e -> expensec2.requestFocus());
         expensec2.addActionListener(e -> expensec3.requestFocus());
-        expensec2.addActionListener(e -> expenseco.requestFocus());
+        expensec3.addActionListener(e -> expenseco.requestFocus());
+        expenseco.addActionListener(e -> dateSelect.requestFocus());
         expenseco.addActionListener(e -> saveButton());
 
     }
@@ -470,7 +478,7 @@ public class EnterBudget extends javax.swing.JFrame {
 
         labelec2.setFont(new java.awt.Font("Roboto", 0, 14)); // NOI18N
         labelec2.setForeground(new java.awt.Color(255, 255, 255));
-        labelec2.setText("Expense category 1");
+        labelec2.setText("Expense category 2");
         jPanel9.add(labelec2, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 170, -1, -1));
 
         clearButton.setBackground(new java.awt.Color(7, 23, 90));
@@ -484,7 +492,7 @@ public class EnterBudget extends javax.swing.JFrame {
                 clearButtonActionPerformed(evt);
             }
         });
-        jPanel9.add(clearButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 410, 110, 40));
+        jPanel9.add(clearButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 410, 100, 40));
 
         viewButton.setBackground(new java.awt.Color(7, 23, 90));
         viewButton.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
@@ -510,7 +518,7 @@ public class EnterBudget extends javax.swing.JFrame {
                 deleteButtonActionPerformed(evt);
             }
         });
-        jPanel9.add(deleteButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 410, 110, 40));
+        jPanel9.add(deleteButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 410, 100, 40));
 
         labelic3.setFont(new java.awt.Font("Roboto", 0, 14)); // NOI18N
         labelic3.setForeground(new java.awt.Color(255, 255, 255));
@@ -596,7 +604,7 @@ public class EnterBudget extends javax.swing.JFrame {
         dateSelect.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         dateSelect.setForeground(new java.awt.Color(51, 51, 51));
         dateSelect.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Date", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" }));
-        jPanel9.add(dateSelect, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 400, 90, 50));
+        jPanel9.add(dateSelect, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 410, 100, 40));
 
         saveButton1.setBackground(new java.awt.Color(7, 23, 90));
         saveButton1.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
@@ -609,7 +617,7 @@ public class EnterBudget extends javax.swing.JFrame {
                 saveButton1ActionPerformed(evt);
             }
         });
-        jPanel9.add(saveButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 410, 110, 40));
+        jPanel9.add(saveButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 410, 100, 40));
 
         jPanel4.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 470, 470));
 
@@ -665,25 +673,39 @@ public class EnterBudget extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addNewSheetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addNewSheetButtonActionPerformed
-        EnterBudget D1 = new EnterBudget(3);
-        D1.setVisible(true);
-        this.dispose();
+        Connection conn = DBconnection.connect();
+        int userId;
+        try {
+            userId = getUserIdBySheetId(conn, sheetId);
+            AddNewSheet D1 = new AddNewSheet(userId);
+            D1.setVisible(true);
+            this.dispose();
+        } catch (SQLException ex) {
+            Logger.getLogger(EnterBudget.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_addNewSheetButtonActionPerformed
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
-        Dashboard D1 = new Dashboard(3);
-        D1.setVisible(true);
-        this.dispose();
+        Connection conn = DBconnection.connect();
+        int userId;
+        try {
+            userId = getUserIdBySheetId(conn, sheetId);
+            Dashboard D1 = new Dashboard(userId);
+            D1.setVisible(true);
+            this.dispose();
+        } catch (SQLException ex) {
+            Logger.getLogger(EnterBudget.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_backButtonActionPerformed
 
     private void enterBudgetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enterBudgetButtonActionPerformed
-        EnterBudget D1 = new EnterBudget(3);
+        EnterBudget D1 = new EnterBudget(userId,sheetId);
         D1.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_enterBudgetButtonActionPerformed
 
     private void viewSummaryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSummaryButtonActionPerformed
-        ViewSummary D1 = new ViewSummary();
+        ViewSummary D1 = new ViewSummary(userId, sheetId);
         D1.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_viewSummaryButtonActionPerformed
@@ -740,7 +762,7 @@ public class EnterBudget extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new EnterBudget(3).setVisible(true);
+                new EnterBudget(0,0).setVisible(true);
             }
         });
     }

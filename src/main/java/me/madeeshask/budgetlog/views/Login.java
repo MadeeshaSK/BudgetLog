@@ -1,6 +1,7 @@
 //@author MadeeshaSK
 
 package me.madeeshask.budgetlog.views;
+import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
 import java.sql.Connection;
@@ -20,6 +21,8 @@ public class Login extends javax.swing.JFrame {
         conScaleImage();
         conSetWindowProperties(); 
         consetLabelFont();
+        conFacus();
+        exitButton.setBackground(new Color(7, 23, 90, 150));
         
     }
     
@@ -54,12 +57,41 @@ public class Login extends javax.swing.JFrame {
         }
     }
     
+    // add focusing in constructer
+    public void conFacus() {
+        SwingUtilities.invokeLater(() -> {
+            username.requestFocus();
+        });
+        username.addActionListener(e -> password.requestFocus());
+        password.addActionListener(e -> login());
+    }
+    
+    // login
     public void login() {
         String userName;
         String passWord;
 
         userName = username.getText();
         passWord = password.getText();
+        
+        if (userName.isEmpty() || passWord.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Fields cannot be empty!");
+//            conFacus();
+            return;
+        }
+        
+        if (!userName.matches("^[a-zA-Z0-9!@#$%^&*()_+\\-={}\\[\\]:;\"'<>,.?/]{4,15}$")) {
+            username.setText("");
+            JOptionPane.showMessageDialog(null, "Invalid username format !");
+            conFacus();
+            return;
+        }
+        
+        if (!passWord.matches("^[a-zA-Z0-9!@#$%^&*()_+\\-={}\\[\\]:;\"'<>,.?/]{4,15}$")) {
+            password.setText("");
+            JOptionPane.showMessageDialog(null, "Invalid password format !");
+            return;
+        }
 
         try (Connection connection = DBconnection.connect()) {
             String query = "SELECT * FROM User WHERE user_name = ? AND password = ?";
@@ -70,11 +102,15 @@ public class Login extends javax.swing.JFrame {
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
-                        Dashboard D1 = new Dashboard();
+                        int userId = rs.getInt("user_id");
+                        Dashboard D1 = new Dashboard(userId);
                         D1.setVisible(true);
                         this.dispose();
                     } else {
+                        username.setText("");
+                        password.setText("");
                         JOptionPane.showMessageDialog(null, "Username or Password incorrect!");
+                        conFacus();
                     }
                 }
             }
@@ -110,8 +146,8 @@ public class Login extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
-        labelPhoto = new javax.swing.JLabel();
         exitButton = new javax.swing.JButton();
+        labelPhoto = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
@@ -140,18 +176,19 @@ public class Login extends javax.swing.JFrame {
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        jPanel8.add(labelPhoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 330, 470));
 
         exitButton.setBackground(new java.awt.Color(7, 23, 90));
         exitButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         exitButton.setForeground(new java.awt.Color(255, 255, 255));
         exitButton.setText("Exit");
+        exitButton.setOpaque(true);
         exitButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exitButtonActionPerformed(evt);
             }
         });
         jPanel8.add(exitButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 400, 110, 40));
+        jPanel8.add(labelPhoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 330, 470));
 
         jPanel2.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 330, 470));
 
@@ -178,7 +215,7 @@ public class Login extends javax.swing.JFrame {
 
         username.setBackground(new java.awt.Color(255, 255, 255));
         username.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
-        username.setForeground(new java.awt.Color(68, 68, 68));
+        username.setForeground(new java.awt.Color(6, 26, 45));
         jPanel9.add(username, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 60, 370, 50));
 
         loginButton.setBackground(new java.awt.Color(7, 23, 90));
@@ -203,7 +240,7 @@ public class Login extends javax.swing.JFrame {
 
         password.setBackground(new java.awt.Color(255, 255, 255));
         password.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
-        password.setForeground(new java.awt.Color(68, 68, 68));
+        password.setForeground(new java.awt.Color(6, 26, 45));
         jPanel9.add(password, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 200, 370, 50));
 
         jPanel4.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 470, 470));
@@ -327,14 +364,6 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JButton loginButton;
     private javax.swing.JPasswordField password;
     private javax.swing.JButton registerButton;
-    private javax.swing.JButton removeButoon;
-    private javax.swing.JButton removeButoon1;
-    private javax.swing.JButton removeButoon2;
-    private javax.swing.JButton removeButoon3;
-    private javax.swing.JButton removeButoon4;
-    private javax.swing.JButton removeButoon5;
-    private javax.swing.JButton removeButoon6;
-    private javax.swing.JButton removeButoon7;
     private javax.swing.JTextField username;
     // End of variables declaration//GEN-END:variables
 }
