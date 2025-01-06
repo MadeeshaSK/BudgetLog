@@ -97,7 +97,7 @@ public class ViewSummary extends javax.swing.JFrame {
 
     //view button
     public void viewButton() {
-        ViewSheet D1 = new ViewSheet(sheetId);
+        ViewSheet D1 = new ViewSheet(userId, sheetId);
         D1.setVisible(true);
         this.dispose();
     }
@@ -167,7 +167,6 @@ public class ViewSummary extends javax.swing.JFrame {
     
     private void fetchSheetAndCategoryDetails() {
         try (Connection connection = DBconnection.connect()) {
-            // Existing sheet query code
             String sheetQuery = "SELECT sheet_name, unit FROM Sheet WHERE sheet_id = ?";
             try (PreparedStatement sheetStmt = connection.prepareStatement(sheetQuery)) {
                 sheetStmt.setInt(1, sheetId);
@@ -631,7 +630,7 @@ public class ViewSummary extends javax.swing.JFrame {
         int userId;
         try {
             userId = getUserIdBySheetId(conn, sheetId);
-            AddNewSheet D1 = new AddNewSheet(userId);
+            AddNewSheet D1 = new AddNewSheet(userId, sheetId);
             D1.setVisible(true);
             this.dispose();
         } catch (SQLException ex) {
@@ -644,7 +643,7 @@ public class ViewSummary extends javax.swing.JFrame {
         int userId;
         try {
             userId = getUserIdBySheetId(conn, sheetId);
-            Dashboard D1 = new Dashboard(userId);
+            Dashboard D1 = new Dashboard(userId, sheetId);
             D1.setVisible(true);
             this.dispose();
         } catch (SQLException ex) {

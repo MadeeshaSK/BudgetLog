@@ -103,7 +103,7 @@ public class Login extends javax.swing.JFrame {
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         int userId = rs.getInt("user_id");
-                        Dashboard D1 = new Dashboard(userId);
+                        Dashboard D1 = new Dashboard(userId, 0);
                         D1.setVisible(true);
                         this.dispose();
                     } else {

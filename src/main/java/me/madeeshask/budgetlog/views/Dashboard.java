@@ -12,18 +12,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import me.madeeshask.budgetlog.utils.Utils;
 import javax.swing.SwingUtilities;
 import me.madeeshask.budgetlog.database.DBconnection;
 public class Dashboard extends javax.swing.JFrame {
 
     private int userId;
+    public int sheetId;
     private String loggedInUsername;
 
-    public Dashboard(int userId) {
+    public Dashboard(int userId, int sheetId) {
         initComponents();
         this.userId = userId;
+        this.sheetId = sheetId;
         conScaleImage();
         conSetWindowProperties(); 
         consetLabelFont();
@@ -124,7 +128,7 @@ public class Dashboard extends javax.swing.JFrame {
                 int selectedRow = sheetTable.getSelectedRow();
                 if (selectedRow != -1) {
                     int sheetId = rowToSheetId.get(selectedRow);
-                    ViewSheet viewSheet = new ViewSheet(sheetId);
+                    ViewSheet viewSheet = new ViewSheet(userId, sheetId);
                     viewSheet.setVisible(true);
                     dispose();
                 }
@@ -139,6 +143,37 @@ public class Dashboard extends javax.swing.JFrame {
         sheetTable.getTableHeader().setPreferredSize(new Dimension(100, 50));
         sheetTable.setFont(new Font("fonts/Roboto-Bold.ttf", Font.BOLD, 24));
         sheetTable.getTableHeader().setFont(new Font("fonts/Roboto-Bold.ttf", Font.BOLD, 24));
+        
+//        sheetTable.setRowMargin(5); 
+        
+        JScrollPane scrollPane = (JScrollPane) sheetTable.getParent().getParent();
+        scrollPane.getViewport().setBackground(java.awt.Color.decode("#061A2D"));
+        scrollPane.setBackground(java.awt.Color.decode("#061A2D"));  
+        sheetTable.setBorder(BorderFactory.createLineBorder(java.awt.Color.decode("#061A2D"), 2));
+        sheetTable.getTableHeader().setBorder(BorderFactory.createLineBorder(java.awt.Color.decode("#061A2D"), 2));
+        scrollPane.setBorder(BorderFactory.createLineBorder(java.awt.Color.decode("#061A2D"), 2)); 
+        
+        sheetTable.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(
+                javax.swing.JTable table, 
+                Object value, 
+                boolean isSelected, 
+                boolean hasFocus, 
+                int row, 
+                int column
+            ) {
+                java.awt.Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (row == 0) {
+                    cell.setBackground(java.awt.Color.decode("#FFFFFF")); 
+                } else {
+                    cell.setBackground(java.awt.Color.decode("#838D96"));
+                }
+
+                return cell;
+            }
+        });
         
     }
     
@@ -322,7 +357,7 @@ public class Dashboard extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addNewSheetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addNewSheetButtonActionPerformed
-        AddNewSheet D1 = new AddNewSheet(userId);
+        AddNewSheet D1 = new AddNewSheet(userId, sheetId);
         D1.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_addNewSheetButtonActionPerformed
@@ -385,7 +420,7 @@ public class Dashboard extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new Dashboard(0).setVisible(true);
+                new Dashboard(0,0).setVisible(true);
             }
         });
     }

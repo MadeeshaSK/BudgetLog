@@ -69,7 +69,9 @@ public class EnterBudget extends javax.swing.JFrame {
         SwingUtilities.invokeLater(() -> {
             incomec1.requestFocus();
         });
-        
+        expensec1.setText("  Enter Categories Amounts");
+        expensec1.setForeground(java.awt.Color.decode("#A9A9A9"));
+        expensec1.setFont(new java.awt.Font("Arial", java.awt.Font.ITALIC, 14));
         incomec1.addActionListener(e -> incomec2.requestFocus());
         incomec2.addActionListener(e -> incomec3.requestFocus());
         incomec3.addActionListener(e -> incomeco.requestFocus());
@@ -96,7 +98,7 @@ public class EnterBudget extends javax.swing.JFrame {
         );
 
         if (choice == JOptionPane.YES_OPTION) {
-            Dashboard D1 = new Dashboard(3);
+            Dashboard D1 = new Dashboard(userId, sheetId);
             D1.setVisible(true);
             this.dispose();
             JOptionPane.showMessageDialog(null, "The working sheet has been successfully deleted.");
@@ -196,7 +198,7 @@ public class EnterBudget extends javax.swing.JFrame {
 
             conn.commit(); 
 
-            ViewSheet D1 = new ViewSheet(3);
+            ViewSheet D1 = new ViewSheet(userId, sheetId);
             D1.setVisible(true);
             this.dispose();
             JOptionPane.showMessageDialog(null, "Data saved successfully.");
@@ -259,7 +261,7 @@ public class EnterBudget extends javax.swing.JFrame {
 
     //view button
     public void viewButton() {
-        ViewSheet D1 = new ViewSheet(sheetId);
+        ViewSheet D1 = new ViewSheet(userId,sheetId);
         D1.setVisible(true);
         this.dispose();
     }
@@ -568,6 +570,14 @@ public class EnterBudget extends javax.swing.JFrame {
         expensec1.setBackground(new java.awt.Color(255, 255, 255));
         expensec1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         expensec1.setForeground(new java.awt.Color(51, 51, 51));
+        expensec1.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                expensec1FocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                expensec1FocusLost(evt);
+            }
+        });
         jPanel9.add(expensec1, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 110, 180, 40));
 
         labelec1.setFont(new java.awt.Font("Roboto", 0, 14)); // NOI18N
@@ -677,7 +687,7 @@ public class EnterBudget extends javax.swing.JFrame {
         int userId;
         try {
             userId = getUserIdBySheetId(conn, sheetId);
-            AddNewSheet D1 = new AddNewSheet(userId);
+            AddNewSheet D1 = new AddNewSheet(userId, sheetId);
             D1.setVisible(true);
             this.dispose();
         } catch (SQLException ex) {
@@ -690,7 +700,7 @@ public class EnterBudget extends javax.swing.JFrame {
         int userId;
         try {
             userId = getUserIdBySheetId(conn, sheetId);
-            Dashboard D1 = new Dashboard(userId);
+            Dashboard D1 = new Dashboard(userId, sheetId);
             D1.setVisible(true);
             this.dispose();
         } catch (SQLException ex) {
@@ -725,6 +735,22 @@ public class EnterBudget extends javax.swing.JFrame {
     private void saveButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButton1ActionPerformed
         saveButton();
     }//GEN-LAST:event_saveButton1ActionPerformed
+
+    private void expensec1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_expensec1FocusGained
+        if ("  Enter Categories Amounts".equals(expensec1.getText())) {
+            expensec1.setText("");
+            expensec1.setForeground(java.awt.Color.decode("#333333"));
+            expensec1.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 14));
+        }
+    }//GEN-LAST:event_expensec1FocusGained
+
+    private void expensec1FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_expensec1FocusLost
+        if ("".equals(expensec1.getText())) {
+            expensec1.setText("  Enter Categories Amounts");
+            expensec1.setForeground(java.awt.Color.decode("#A9A9A9"));
+            expensec1.setFont(new java.awt.Font("Arial", java.awt.Font.ITALIC, 14));
+        }
+    }//GEN-LAST:event_expensec1FocusLost
 
     
     public static void main(String args[]) {
