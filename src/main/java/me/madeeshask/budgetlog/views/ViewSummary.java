@@ -1,6 +1,7 @@
 //@author MadeeshaSK
 
 package me.madeeshask.budgetlog.views;
+import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
 import java.sql.Connection;
@@ -101,31 +102,6 @@ public class ViewSummary extends javax.swing.JFrame {
         this.dispose();
     }
     
-    // fetchSheetAndCategoryDetails
-//    private void fetchSheetAndCategoryDetails() {
-//        try (Connection connection = DBconnection.connect()) {
-//            
-//            String sheetQuery = "SELECT sheet_name, unit FROM Sheet WHERE sheet_id = ?";
-//            try (PreparedStatement sheetStmt = connection.prepareStatement(sheetQuery)) {
-//                sheetStmt.setInt(1, sheetId);
-//
-//                try (ResultSet sheetRs = sheetStmt.executeQuery()) {
-//                    if (sheetRs.next()) {
-//                        String sheetName = sheetRs.getString("sheet_name");
-//                        labelSheetname.setText(sheetName);
-//                        String sheetUnit = sheetRs.getString("unit");
-//                        labelUnit.setText(sheetUnit);
-//                    }
-//                }
-//            }
-//            
-//            fetchCategoryNames();
-//        
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            JOptionPane.showMessageDialog(null, "Error fetching data: " + e.getMessage());
-//        }
-//    }
 
     // fetchCategoryNames
     private void fetchCategoryNames() {
@@ -209,83 +185,95 @@ public class ViewSummary extends javax.swing.JFrame {
             // Fetch category names
             fetchCategoryNames();
 
-            // New code to fetch totals
-            String totalsQuery = """
-                SELECT 
-                    (SELECT COALESCE(SUM(e.amount), 0)
-                     FROM Expense e
-                     JOIN Category c ON e.expense_id = c.category_id
-                     JOIN Record r ON r.record_id = e.record_id
-                     WHERE c.category_name = ?
-                     AND r.record_id IN (
-                         SELECT r.record_id
-                         FROM Sheet s
-                         JOIN Record r ON r.sheet_id = s.sheet_id
-                         WHERE s.sheet_id = ?
-                     )
-                     AND c.sheet_id = ?) as category_total
-                """;
+            // fetch totals query
+            String expenseQuery = """
+                SELECT COALESCE(SUM(e.amount), 0) as category_total
+                FROM Expense e
+                WHERE e.expense_name = ?
+                AND e.record_id IN (
+                    SELECT r.record_id 
+                    FROM Sheet s 
+                    JOIN Record r ON r.sheet_id = s.sheet_id 
+                    WHERE s.sheet_id = ?
+                )
+            """;
+            
+            String incomeQuery = """
+                SELECT COALESCE(SUM(i.amount), 0) as category_total
+                FROM Income i
+                WHERE i.income_name = ?
+                AND i.record_id IN (
+                    SELECT r.record_id 
+                    FROM Sheet s 
+                    JOIN Record r ON r.sheet_id = s.sheet_id 
+                    WHERE s.sheet_id = ?
+                )
+            """;
 
             // Fetch expense totals
-            try (PreparedStatement expenseStmt = connection.prepareStatement(totalsQuery)) {
-                // Expense category 1
-                expenseStmt.setString(1, labelec1.getText());
-                expenseStmt.setInt(2, sheetId);
-                expenseStmt.setInt(3, sheetId);
+            try (PreparedStatement expenseStmt = connection.prepareStatement(expenseQuery)) {
+                
+                expenseStmt.setString(1, "Expense 1");
+                expenseStmt.setInt(2, sheetId);  
                 ResultSet rs = expenseStmt.executeQuery();
                 if (rs.next()) {
                     lecb1.setText(String.format("%.2f", rs.getDouble("category_total")));
                 }
 
-                // Expense category 2
-                expenseStmt.setString(1, labelec2.getText());
+                
+                expenseStmt.setString(1, "Expense 2");
+                expenseStmt.setInt(2, sheetId);  
                 rs = expenseStmt.executeQuery();
                 if (rs.next()) {
                     lecb2.setText(String.format("%.2f", rs.getDouble("category_total")));
                 }
 
-                // Expense category 3
-                expenseStmt.setString(1, labelec3.getText());
+                
+                expenseStmt.setString(1, "Expense 3");
+                expenseStmt.setInt(2, sheetId);  
                 rs = expenseStmt.executeQuery();
                 if (rs.next()) {
                     lecb3.setText(String.format("%.2f", rs.getDouble("category_total")));
                 }
 
-                // Other expenses
-                expenseStmt.setString(1, labeleco.getText());
+                
+                expenseStmt.setString(1, "Expense Other");
+                expenseStmt.setInt(2, sheetId);  
                 rs = expenseStmt.executeQuery();
                 if (rs.next()) {
                     lecbo.setText(String.format("%.2f", rs.getDouble("category_total")));
                 }
             }
 
-            // Use same query structure for incomes
-            try (PreparedStatement incomeStmt = connection.prepareStatement(totalsQuery.replace("Expense e", "Income i").replace("expense_id", "income_id"))) {
-                // Income category 1
-                incomeStmt.setString(1, labelic1.getText());
-                incomeStmt.setInt(2, sheetId);
-                incomeStmt.setInt(3, sheetId);
+            
+            try (PreparedStatement incomeStmt = connection.prepareStatement(incomeQuery)) {
+                
+                incomeStmt.setString(1, "Income 1");
+                incomeStmt.setInt(2, sheetId);  
                 ResultSet rs = incomeStmt.executeQuery();
                 if (rs.next()) {
                     licb1.setText(String.format("%.2f", rs.getDouble("category_total")));
                 }
 
-                // Income category 2
-                incomeStmt.setString(1, labelic2.getText());
+                
+                incomeStmt.setString(1, "Income 2");
+                incomeStmt.setInt(2, sheetId);  
                 rs = incomeStmt.executeQuery();
                 if (rs.next()) {
                     licb2.setText(String.format("%.2f", rs.getDouble("category_total")));
                 }
 
-                // Income category 3
-                incomeStmt.setString(1, labelic3.getText());
+                
+                incomeStmt.setString(1, "Income 3");
+                incomeStmt.setInt(2, sheetId);  
                 rs = incomeStmt.executeQuery();
                 if (rs.next()) {
                     licb3.setText(String.format("%.2f", rs.getDouble("category_total")));
                 }
 
-                // Other incomes
-                incomeStmt.setString(1, labelico.getText());
+                
+                incomeStmt.setString(1, "Income Other");
+                incomeStmt.setInt(2, sheetId);  
                 rs = incomeStmt.executeQuery();
                 if (rs.next()) {
                     licbo.setText(String.format("%.2f", rs.getDouble("category_total")));
@@ -302,10 +290,21 @@ public class ViewSummary extends javax.swing.JFrame {
                                  Double.parseDouble(lecb2.getText()) +
                                  Double.parseDouble(lecb3.getText()) +
                                  Double.parseDouble(lecbo.getText());
-
+            
+            double balance = totalIncome - totalExpenses;
+            
             labelTotalIncomes.setText(String.format("%.2f", totalIncome));
             labelTotalExpenses.setText(String.format("%.2f", totalExpenses));
-            labelBalance.setText(String.format("%.2f", totalIncome - totalExpenses));
+            labelBalance.setText(String.format("%.2f", balance));
+            
+            if (balance == 0) {
+                labelBalance.setForeground(Color.WHITE); 
+            } else if (balance > 0) {
+                labelBalance.setForeground(Color.GREEN); 
+            } else {
+                labelBalance.setForeground(Color.RED);   
+            }
+
 
         } catch (SQLException e) {
             e.printStackTrace();
