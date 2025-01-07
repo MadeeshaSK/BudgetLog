@@ -1,6 +1,20 @@
-# BudgetLog - Not Finished / Still developing
+# BudgetLog 
 
 A simple Java Swing desktop application for managing daily budget entries and monitoring expenses. This project is designed to help users track their spending and maintain financial control through an intuitive user interface.
+
+## Installation
+Here is the User Guide, read it: [User Guide](https://drive.google.com/file/d/1KxvN0-_-QrsTzImXhuUVR-XUYjbF_748/view?usp=sharing)
+Here is the installer, download and install: [Download Installer](https://drive.google.com/uc?export=download&id=1fwRXeXoByh6Wb7kecJzl7wPAAe8_gS_b)
+
+[Note: If you encounter issues during installation, try running the installer in Administrative Mode.]
+
+
+## Features
+
+- Simple and user-friendly interface for daily budget tracking
+- categories for organized tracking
+- Real-time budget monitoring and view analysis.
+- Add, update, and remove budget entries and sheets.
 
 ## System Analysis and Design
 
@@ -15,22 +29,10 @@ A simple Java Swing desktop application for managing daily budget entries and mo
 - **IDE**: NetBeans
 - **Version Control**: [GitHub](https://github.com/MadeeshaSK/BudgetLog.git)
 
-## Features
-
-- Simple and user-friendly interface for daily budget tracking
-- categories for organized tracking
-- Real-time budget monitoring and view analysis.
-- Add, update, and remove budget entries and sheets.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](https://drive.google.com/file/d/1vKyz7fD0ZqcaPzlLoxb0RWljvvTnROhP/view?usp=sharing) file for details.
 
-## Installation
-Here is the User Guide, read it: [User Guide](https://drive.google.com/file/d/1KxvN0-_-QrsTzImXhuUVR-XUYjbF_748/view?usp=sharing)
-Here is the installer, download and install: [Download Installer](https://drive.google.com/uc?export=download&id=1fwRXeXoByh6Wb7kecJzl7wPAAe8_gS_b)
-
-[Note: If you encounter issues during installation, try running the installer in Administrative Mode.]
 
 
 
