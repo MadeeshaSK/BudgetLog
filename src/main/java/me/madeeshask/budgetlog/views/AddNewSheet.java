@@ -239,10 +239,11 @@ public class AddNewSheet extends javax.swing.JFrame {
             return;
         }
         
-        if (!sheetname.matches("^[a-zA-Z0-9 ]{1,30}$")) {
-            JOptionPane.showMessageDialog(null, "Sheet Name can only contain English letters numbers and spaces, and must be 1-30 characters long.");
+        if (!sheetname.matches("^[a-zA-Z0-9 ()]{1,30}$")) {
+            JOptionPane.showMessageDialog(null, "Sheet Name can only contain English letters, numbers, spaces, and parentheses (), and must be 1-30 characters long.");
             return;
         }
+
         
         if (incomeC1 != null && !incomeC1.matches("^[a-zA-Z0-9 ]{0,30}$")) {
             JOptionPane.showMessageDialog(null, "incomeC1 can only contain English letters numbers and spaces, and must be 0-30 characters long.");
@@ -311,7 +312,7 @@ public class AddNewSheet extends javax.swing.JFrame {
             ViewSheet D1 = new ViewSheet(userId, sheetId);
             D1.setVisible(true);
             this.dispose();
-            JOptionPane.showMessageDialog(null, "Data saved successfully.");
+            JOptionPane.showMessageDialog(null, "Sheet created successfully.");
             
         } catch (SQLException e) {
             e.printStackTrace();
@@ -420,8 +421,8 @@ public class AddNewSheet extends javax.swing.JFrame {
             return;
         }
 
-        if (!sheetname.matches("^[a-zA-Z0-9 ]{1,30}$")) {
-            JOptionPane.showMessageDialog(null, "Sheet Name can only contain English letters, numbers, and spaces, and must be 1-30 characters long.");
+        if (!sheetname.matches("^[a-zA-Z0-9 ()]{1,30}$")) {
+            JOptionPane.showMessageDialog(null, "Sheet Name can only contain English letters, numbers, spaces, and parentheses (), and must be 1-30 characters long.");
             return;
         }
 

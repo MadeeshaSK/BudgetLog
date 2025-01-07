@@ -117,12 +117,12 @@ public class ViewSheet extends javax.swing.JFrame {
         try (ResultSet rs = stmt.executeQuery()) {
             
             DefaultTableModel model = new DefaultTableModel();
-            model.addColumn("Record ID");  // Added new column
+            model.addColumn("Record ID");  
             model.addColumn("Date");
             while (rs.next()) {
-                int recordId = rs.getInt("record_id");  // Get record_id
+                int recordId = rs.getInt("record_id"); 
                 String date = rs.getString("date");
-                model.addRow(new Object[]{recordId, date});  // Add both values to row
+                model.addRow(new Object[]{recordId, date}); 
             }
             DateTable.setModel(model);
         }
@@ -368,9 +368,9 @@ public class ViewSheet extends javax.swing.JFrame {
     public void tablepropExpense() {
         setTableProperties(ExpenseTable);
     }
-
+    
     private void setTableProperties(javax.swing.JTable table) {
-        
+
         table.getTableHeader().setBackground(java.awt.Color.decode("#07175A"));
         table.getTableHeader().setForeground(java.awt.Color.decode("#FFFFFF"));
         table.setFont(new Font("fonts/Roboto-Bold.ttf", Font.BOLD, 14));
@@ -383,46 +383,72 @@ public class ViewSheet extends javax.swing.JFrame {
         table.setBorder(BorderFactory.createLineBorder(java.awt.Color.decode("#061A2D"), 2));
         table.getTableHeader().setBorder(BorderFactory.createLineBorder(java.awt.Color.decode("#061A2D"), 2));
         scrollPane.setBorder(BorderFactory.createLineBorder(java.awt.Color.decode("#061A2D"), 2));
-        
+
         final int alignment;
         if (table.equals(EditTable) || table.equals(DateTable)) {
             alignment = SwingConstants.CENTER;
         } else {
             alignment = SwingConstants.RIGHT;
         }
-        
+
         if (table.equals(EditTable)) {
             table.setEnabled(true);
+            table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+                @Override
+                public java.awt.Component getTableCellRendererComponent(
+                    javax.swing.JTable table, 
+                    Object value, 
+                    boolean isSelected, 
+                    boolean hasFocus, 
+                    int row, 
+                    int column
+                ) {
+                    java.awt.Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                    if (isSelected) {
+                        cell.setBackground(java.awt.Color.decode("#07175A")); 
+                        cell.setForeground(java.awt.Color.decode("#FFFFFF"));
+                    } else if (row == table.getRowCount() - 1) { 
+                        cell.setBackground(java.awt.Color.decode("#444444"));
+                        cell.setForeground(java.awt.Color.decode("#FFFFFF"));
+                    } else {
+                        cell.setBackground(java.awt.Color.decode("#838D96")); 
+                        cell.setForeground(java.awt.Color.decode("#07175A")); 
+                    }
+
+                    this.setHorizontalAlignment(alignment);
+                    return cell;
+                }
+            });
         } else {
             table.setEnabled(false);
-        }
-        
-        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
-            @Override
-            public java.awt.Component getTableCellRendererComponent(
-                javax.swing.JTable table, 
-                Object value, 
-                boolean isSelected, 
-                boolean hasFocus, 
-                int row, 
-                int column
-            ) {
-                java.awt.Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                
-                if (row == table.getRowCount() - 1) { // Last row
-                    cell.setBackground(java.awt.Color.decode("#444444"));
-                    cell.setForeground(java.awt.Color.decode("#FFFFFF"));
-                } else {
-                    cell.setBackground(java.awt.Color.decode("#FFFFFF"));
-                    cell.setForeground(java.awt.Color.decode("#000000"));
+            table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+                @Override
+                public java.awt.Component getTableCellRendererComponent(
+                    javax.swing.JTable table, 
+                    Object value, 
+                    boolean isSelected, 
+                    boolean hasFocus, 
+                    int row, 
+                    int column
+                ) {
+                    java.awt.Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                    if (row == table.getRowCount() - 1) { // Last row
+                        cell.setBackground(java.awt.Color.decode("#444444"));
+                        cell.setForeground(java.awt.Color.decode("#FFFFFF"));
+                    } else {
+                        cell.setBackground(java.awt.Color.decode("#FFFFFF"));
+                        cell.setForeground(java.awt.Color.decode("#000000"));
+                    }
+
+                    this.setHorizontalAlignment(alignment);
+                    return cell;
                 }
-           
-                
-                this.setHorizontalAlignment(alignment);
-                return cell;
-            }
-        });
+            });
+        }
     }
+
     
     // fill edit table
     public void populateEditColumn() {
@@ -482,6 +508,7 @@ public class ViewSheet extends javax.swing.JFrame {
         labelUnit = new javax.swing.JLabel();
         backButton = new javax.swing.JButton();
         editSheetButton = new javax.swing.JButton();
+        addbudgetButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         ExpenseTable = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -523,16 +550,16 @@ public class ViewSheet extends javax.swing.JFrame {
         labelSheetname.setForeground(new java.awt.Color(255, 255, 255));
         labelSheetname.setText("Sheet Name");
         labelSheetname.setOpaque(true);
-        jPanel7.add(labelSheetname, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 410, 40));
+        jPanel7.add(labelSheetname, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 340, 40));
 
         labelUnit.setBackground(new java.awt.Color(6, 26, 45));
         labelUnit.setFont(new java.awt.Font("Roboto Black", 1, 24)); // NOI18N
         labelUnit.setForeground(new java.awt.Color(255, 255, 255));
         labelUnit.setText("Unit");
         labelUnit.setOpaque(true);
-        jPanel7.add(labelUnit, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 20, 90, 40));
+        jPanel7.add(labelUnit, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 20, 80, 40));
 
-        jPanel5.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 10, 600, 80));
+        jPanel5.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 10, 460, 80));
 
         backButton.setBackground(new java.awt.Color(7, 23, 90));
         backButton.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
@@ -558,7 +585,20 @@ public class ViewSheet extends javax.swing.JFrame {
                 editSheetButtonActionPerformed(evt);
             }
         });
-        jPanel5.add(editSheetButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(970, 30, 130, 40));
+        jPanel5.add(editSheetButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(970, 30, 150, 40));
+
+        addbudgetButton.setBackground(new java.awt.Color(7, 23, 90));
+        addbudgetButton.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+        addbudgetButton.setForeground(new java.awt.Color(255, 255, 255));
+        addbudgetButton.setText("Add Budget");
+        addbudgetButton.setAlignmentY(1.0F);
+        addbudgetButton.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        addbudgetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addbudgetButtonActionPerformed(evt);
+            }
+        });
+        jPanel5.add(addbudgetButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 30, 150, 40));
 
         jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1280, 100));
 
@@ -586,9 +626,9 @@ public class ViewSheet extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        ExpenseTable.setMinimumSize(new java.awt.Dimension(75, 500));
-        ExpenseTable.setPreferredSize(new java.awt.Dimension(375, 500));
-        ExpenseTable.setRowHeight(30);
+        ExpenseTable.setMinimumSize(new java.awt.Dimension(75, 600));
+        ExpenseTable.setPreferredSize(new java.awt.Dimension(375, 600));
+        ExpenseTable.setRowHeight(20);
         jScrollPane1.setViewportView(ExpenseTable);
         if (ExpenseTable.getColumnModel().getColumnCount() > 0) {
             ExpenseTable.getColumnModel().getColumn(0).setResizable(false);
@@ -598,7 +638,7 @@ public class ViewSheet extends javax.swing.JFrame {
             ExpenseTable.getColumnModel().getColumn(4).setResizable(false);
         }
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 110, 450, 650));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 110, 490, 650));
 
         EditTable.setBackground(new java.awt.Color(6, 26, 45));
         EditTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -606,7 +646,7 @@ public class ViewSheet extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Edit Record"
+                "Edit"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -617,15 +657,15 @@ public class ViewSheet extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        EditTable.setMinimumSize(new java.awt.Dimension(15, 500));
-        EditTable.setPreferredSize(new java.awt.Dimension(75, 500));
-        EditTable.setRowHeight(30);
+        EditTable.setMinimumSize(new java.awt.Dimension(15, 600));
+        EditTable.setPreferredSize(new java.awt.Dimension(75, 600));
+        EditTable.setRowHeight(20);
         jScrollPane2.setViewportView(EditTable);
         if (EditTable.getColumnModel().getColumnCount() > 0) {
             EditTable.getColumnModel().getColumn(0).setResizable(false);
         }
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 110, 100, 650));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1180, 110, 80, 650));
 
         IncomeTable.setBackground(new java.awt.Color(6, 26, 45));
         IncomeTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -651,10 +691,9 @@ public class ViewSheet extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        IncomeTable.setMaximumSize(new java.awt.Dimension(2147483647, 0));
-        IncomeTable.setMinimumSize(new java.awt.Dimension(75, 500));
-        IncomeTable.setPreferredSize(new java.awt.Dimension(75, 500));
-        IncomeTable.setRowHeight(30);
+        IncomeTable.setMinimumSize(new java.awt.Dimension(75, 600));
+        IncomeTable.setPreferredSize(new java.awt.Dimension(75, 600));
+        IncomeTable.setRowHeight(20);
         jScrollPane3.setViewportView(IncomeTable);
         if (IncomeTable.getColumnModel().getColumnCount() > 0) {
             IncomeTable.getColumnModel().getColumn(0).setResizable(false);
@@ -664,7 +703,7 @@ public class ViewSheet extends javax.swing.JFrame {
             IncomeTable.getColumnModel().getColumn(4).setResizable(false);
         }
 
-        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 110, 450, 650));
+        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 110, 490, 650));
 
         DateTable.setBackground(new java.awt.Color(6, 26, 45));
         DateTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -690,15 +729,15 @@ public class ViewSheet extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        DateTable.setMinimumSize(new java.awt.Dimension(15, 500));
-        DateTable.setPreferredSize(new java.awt.Dimension(75, 500));
-        DateTable.setRowHeight(30);
+        DateTable.setMinimumSize(new java.awt.Dimension(15, 600));
+        DateTable.setPreferredSize(new java.awt.Dimension(75, 600));
+        DateTable.setRowHeight(20);
         jScrollPane4.setViewportView(DateTable);
         if (DateTable.getColumnModel().getColumnCount() > 0) {
             DateTable.getColumnModel().getColumn(0).setResizable(false);
         }
 
-        jPanel1.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, 100, 650));
+        jPanel1.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 80, 650));
 
         BalanceTable.setBackground(new java.awt.Color(6, 26, 45));
         BalanceTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -724,15 +763,15 @@ public class ViewSheet extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        BalanceTable.setMinimumSize(new java.awt.Dimension(15, 500));
-        BalanceTable.setPreferredSize(new java.awt.Dimension(75, 500));
-        BalanceTable.setRowHeight(30);
+        BalanceTable.setMinimumSize(new java.awt.Dimension(15, 600));
+        BalanceTable.setPreferredSize(new java.awt.Dimension(75, 600));
+        BalanceTable.setRowHeight(20);
         jScrollPane5.setViewportView(BalanceTable);
         if (BalanceTable.getColumnModel().getColumnCount() > 0) {
             BalanceTable.getColumnModel().getColumn(0).setResizable(false);
         }
 
-        jPanel1.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1040, 110, 100, 650));
+        jPanel1.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 110, 100, 650));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -760,6 +799,12 @@ public class ViewSheet extends javax.swing.JFrame {
         D1.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_backButtonActionPerformed
+
+    private void addbudgetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addbudgetButtonActionPerformed
+        EnterBudget D1 = new EnterBudget(userId,sheetId);
+        D1.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_addbudgetButtonActionPerformed
 
     
     public static void main(String args[]) {
@@ -800,6 +845,7 @@ public class ViewSheet extends javax.swing.JFrame {
     private javax.swing.JTable EditTable;
     private javax.swing.JTable ExpenseTable;
     private javax.swing.JTable IncomeTable;
+    private javax.swing.JButton addbudgetButton;
     private javax.swing.JButton backButton;
     private javax.swing.JButton editSheetButton;
     private javax.swing.JPanel jPanel1;

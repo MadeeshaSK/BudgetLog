@@ -22,7 +22,6 @@ public class Login extends javax.swing.JFrame {
         conSetWindowProperties(); 
         consetLabelFont();
         conFacus();
-        exitButton.setBackground(new Color(7, 23, 90, 150));
         
     }
     
@@ -146,8 +145,8 @@ public class Login extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
-        exitButton = new javax.swing.JButton();
         labelPhoto = new javax.swing.JLabel();
+        exitButton = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
@@ -176,6 +175,7 @@ public class Login extends javax.swing.JFrame {
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel8.add(labelPhoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 330, 470));
 
         exitButton.setBackground(new java.awt.Color(7, 23, 90));
         exitButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -188,7 +188,6 @@ public class Login extends javax.swing.JFrame {
             }
         });
         jPanel8.add(exitButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 400, 110, 40));
-        jPanel8.add(labelPhoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 330, 470));
 
         jPanel2.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 330, 470));
 

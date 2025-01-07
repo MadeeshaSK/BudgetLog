@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import me.madeeshask.budgetlog.utils.Utils;
 import javax.swing.SwingUtilities;
 import me.madeeshask.budgetlog.database.DBconnection;
@@ -170,6 +171,13 @@ public class Dashboard extends javax.swing.JFrame {
                 } else {
                     cell.setBackground(java.awt.Color.decode("#838D96"));
                 }
+                
+                if (isSelected) {
+                        cell.setBackground(java.awt.Color.decode("#07175A")); 
+                        cell.setForeground(java.awt.Color.decode("#FFFFFF"));
+                }
+                
+                this.setHorizontalAlignment(SwingConstants.CENTER);
 
                 return cell;
             }
