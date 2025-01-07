@@ -436,7 +436,7 @@ public class ViewSheet extends javax.swing.JFrame {
     }
 
 
-    // redirect to edit 
+    // redirect to edit  
     public void handleRowClick() {
         EditTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         EditTable.addMouseListener(new MouseAdapter() {

@@ -8,17 +8,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import me.madeeshask.budgetlog.utils.Utils;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import me.madeeshask.budgetlog.database.DBconnection;
 
 public class EnterBudget extends javax.swing.JFrame {
 
     public int sheetId;
     public int userId;
+    public int recordId;
+    private boolean isUpdate;
 
     public EnterBudget(int userId, int sheetId) {
         initComponents();
@@ -29,6 +34,23 @@ public class EnterBudget extends javax.swing.JFrame {
         consetLabelFont();
         conFacus();
         fetchSheetAndCategoryDetails();
+        this.isUpdate = false;
+        
+        
+    }
+    
+    public EnterBudget(int userId, int sheetId, int recordId) {
+        initComponents();
+        this.sheetId = sheetId;
+        this.userId = userId;
+        this.recordId = recordId;
+        conScaleImage();
+        conSetWindowProperties(); 
+        consetLabelFont();
+        conFacusLoad();
+        fetchSheetAndCategoryDetails();
+        loadDataForAddSheet(recordId);
+        this.isUpdate = true;
         
     }
     
@@ -54,9 +76,10 @@ public class EnterBudget extends javax.swing.JFrame {
     public void consetLabelFont() {
         try {
             Utils.setLabelFont(labelHeading, "fonts/Roboto-Bold.ttf", Font.BOLD, 24);
-            Utils.setLabelFont(labelSheetname, "fonts/Roboto-Bold.ttf", Font.BOLD, 18);
+            Utils.setLabelFont(labelUnit, "fonts/Roboto-Bold.ttf", Font.BOLD, 18);
             Utils.setLabelFont(labelHeading3, "fonts/Roboto-Bold.ttf", Font.BOLD, 18);
             Utils.setLabelFont(labelHeading1, "fonts/Roboto-Bold.ttf", Font.BOLD, 18);
+            Utils.setLabelFont(labelUnit, "fonts/Roboto-Bold.ttf", Font.BOLD, 18);
             
             // add label fonts here
         } catch (IOException ex) {
@@ -84,31 +107,27 @@ public class EnterBudget extends javax.swing.JFrame {
 
     }
     
-    // delete button action
-    public void deleteButton() {
-        int choice = JOptionPane.showOptionDialog(
-            null,
-            "Do you want to delete the working sheet?",
-            "Delete Confirmation",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE,
-            null,
-            new Object[] { "Yes", "No" },
-            "No"
-        );
+    // add focusing in constructer
+    public void conFacusLoad() {
+        SwingUtilities.invokeLater(() -> {
+            incomec1.requestFocus();
+        });
+        
+        incomec1.addActionListener(e -> incomec2.requestFocus());
+        incomec2.addActionListener(e -> incomec3.requestFocus());
+        incomec3.addActionListener(e -> incomeco.requestFocus());
+        incomeco.addActionListener(e -> expensec1.requestFocus());
+        expensec1.addActionListener(e -> expensec2.requestFocus());
+        expensec2.addActionListener(e -> expensec3.requestFocus());
+        expensec3.addActionListener(e -> expenseco.requestFocus());
+        expenseco.addActionListener(e -> dateSelect.requestFocus());
+        expenseco.addActionListener(e -> saveButton());
 
-        if (choice == JOptionPane.YES_OPTION) {
-            Dashboard D1 = new Dashboard(userId, sheetId);
-            D1.setVisible(true);
-            this.dispose();
-            JOptionPane.showMessageDialog(null, "The working sheet has been successfully deleted.");
-        } else if (choice == JOptionPane.NO_OPTION) {
-            //
-        }
     }
     
     //clear button action
     public void clearButton() {
+        conFacus();
         dateSelect.setSelectedIndex(0);
         incomec1.setText("");
         expensec1.setText("");
@@ -130,7 +149,7 @@ public class EnterBudget extends javax.swing.JFrame {
         String expenseC1Text = expensec1.getText().trim();
         String expenseC2Text = expensec2.getText().trim();
         String expenseC3Text = expensec3.getText().trim();
-        String expenseC0Text = expenseco.getText().trim();
+        String expenseCoText = expenseco.getText().trim();
 
         Double incomeC1 = parseDouble(incomeC1Text);
         Double incomeC2 = parseDouble(incomeC2Text);
@@ -139,29 +158,36 @@ public class EnterBudget extends javax.swing.JFrame {
         Double expenseC1 = parseDouble(expenseC1Text);
         Double expenseC2 = parseDouble(expenseC2Text);
         Double expenseC3 = parseDouble(expenseC3Text);
-        Double expenseC0 = parseDouble(expenseC0Text);
+        Double expenseCo = parseDouble(expenseCoText);   
         
         if (date == null || "Date".equals(date)) {
             JOptionPane.showMessageDialog(null, "Please select a valid date.");
             return;
         }
 
-        if ((incomeC1 == null && incomeC2 == null && incomeC3 == null && incomeCo == null) &&
-            (expenseC1 == null && expenseC2 == null && expenseC3 == null && expenseC0 == null)) {
-            JOptionPane.showMessageDialog(null, "At least one income or expense field should be filled.");
+        boolean hasNonZeroValue = false;
+        Double[] values = {incomeC1, incomeC2, incomeC3, incomeCo, 
+                          expenseC1, expenseC2, expenseC3, expenseCo};
+
+        for (Double value : values) {
+            if (value != null && value > 0) {
+                hasNonZeroValue = true;
+                break;
+            }
+        }
+
+        if (!hasNonZeroValue) {
+            JOptionPane.showMessageDialog(null, "At least one field must have a value greater than zero.");
             return;
         }
 
-        if ((incomeC1 != null && incomeC1 < 0) || 
-            (incomeC2 != null && incomeC2 < 0) || 
-            (incomeC3 != null && incomeC3 < 0) || 
-            (incomeCo != null && incomeCo < 0) || 
-            (expenseC1 != null && expenseC1 < 0) || 
-            (expenseC2 != null && expenseC2 < 0) || 
-            (expenseC3 != null && expenseC3 < 0) || 
-            (expenseC0 != null && expenseC0 < 0)) {
-            JOptionPane.showMessageDialog(null, "Values must be zero or positive number.");
-            return;
+        for (Double value : values) {
+            if (value != null) {
+                if (value < 0 || value > 999999999) {
+                    JOptionPane.showMessageDialog(null, "Values must be between 0 and 999,999,999.");
+                    return;
+                }
+            }
         }
 
         try (Connection conn = DBconnection.connect()) {
@@ -189,7 +215,7 @@ public class EnterBudget extends javax.swing.JFrame {
             insertExpend(conn, recordId, expenseC1, "Expense 1");
             insertExpend(conn, recordId, expenseC2, "Expense 2");
             insertExpend(conn, recordId, expenseC3, "Expense 3");
-            insertExpend(conn, recordId, expenseC0, "Expense Other");
+            insertExpend(conn, recordId, expenseCo, "Expense Other");
 
             insertIncome(conn, recordId, incomeC1, "Income 1");
             insertIncome(conn, recordId, incomeC2, "Income 2");
@@ -209,11 +235,11 @@ public class EnterBudget extends javax.swing.JFrame {
     }
 
     private void insertExpend(Connection conn, int recordId, Double amount, String name) {
-        if (amount != null && amount > 0) {
+        if (amount != null && amount >= 0) {
             String query = "INSERT INTO Expense (expense_name, amount, record_id) VALUES (?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setString(1, name);
-                stmt.setDouble(2, amount);
+                stmt.setDouble(2, amount == null ? 0 : amount);
                 stmt.setInt(3, recordId);
                 stmt.executeUpdate();
             } catch (SQLException e) {
@@ -223,11 +249,11 @@ public class EnterBudget extends javax.swing.JFrame {
     }
 
     private void insertIncome(Connection conn, int recordId, Double amount, String name) {
-        if (amount != null && amount > 0) {
+        if (amount != null && amount >= 0) {
             String query = "INSERT INTO Income (income_name, amount, record_id) VALUES (?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setString(1, name);
-                stmt.setDouble(2, amount);
+                stmt.setDouble(2, amount == null ? 0 : amount);
                 stmt.setInt(3, recordId);
                 stmt.executeUpdate();
             } catch (SQLException e) {
@@ -238,9 +264,138 @@ public class EnterBudget extends javax.swing.JFrame {
 
     private Double parseDouble(String text) {
         try {
-            return text.isEmpty() ? null : Double.parseDouble(text);
+            return text.isEmpty() ? 0.0 : Double.parseDouble(text);
         } catch (NumberFormatException e) {
-            return null;
+            System.out.println("Invalid number format: " + text);
+            return 0.0; 
+        }
+    }
+
+    
+    // update button action
+    public void updateButton(int recordId) {
+        String date = (String) dateSelect.getSelectedItem();
+        String incomeC1Text = incomec1.getText().trim();
+        String incomeC2Text = incomec2.getText().trim();
+        String incomeC3Text = incomec3.getText().trim();
+        String incomeCoText = incomeco.getText().trim();
+        String expenseC1Text = expensec1.getText().trim();
+        String expenseC2Text = expensec2.getText().trim();
+        String expenseC3Text = expensec3.getText().trim();
+        String expenseC0Text = expenseco.getText().trim();
+
+        Double incomeC1 = parseDouble(incomeC1Text);
+        Double incomeC2 = parseDouble(incomeC2Text);
+        Double incomeC3 = parseDouble(incomeC3Text);
+        Double incomeCo = parseDouble(incomeCoText);
+        Double expenseC1 = parseDouble(expenseC1Text);
+        Double expenseC2 = parseDouble(expenseC2Text);
+        Double expenseC3 = parseDouble(expenseC3Text);
+        Double expenseCo = parseDouble(expenseC0Text);
+
+        if (date == null || "Date".equals(date)) {
+            JOptionPane.showMessageDialog(null, "Please select a valid date.");
+            return;
+        }
+
+        boolean hasNonZeroValue = false;
+        Double[] values = {incomeC1, incomeC2, incomeC3, incomeCo, 
+                          expenseC1, expenseC2, expenseC3, expenseCo};
+
+        for (Double value : values) {
+            if (value != null && value > 0) {
+                hasNonZeroValue = true;
+                break;
+            }
+        }
+
+        if (!hasNonZeroValue) {
+            JOptionPane.showMessageDialog(null, "At least one field must have a value greater than zero.");
+            return;
+        }
+
+        for (Double value : values) {
+            if (value != null) {
+                if (value < 0 || value > 999999999) {
+                    JOptionPane.showMessageDialog(null, "Values must be between 0 and 999,999,999.");
+                    return;
+                }
+            }
+        }
+
+        try (Connection conn = DBconnection.connect()) {
+            conn.setAutoCommit(false);
+
+            String recordUpdateQuery = "UPDATE Record SET date = ? WHERE record_id = ?";
+            try (PreparedStatement recordStmt = conn.prepareStatement(recordUpdateQuery)) {
+                recordStmt.setString(1, date);
+                recordStmt.setInt(2, recordId);
+                recordStmt.executeUpdate();
+            }
+
+            updateExpend(conn, recordId, expenseC1, "Expense 1");
+            updateExpend(conn, recordId, expenseC2, "Expense 2");
+            updateExpend(conn, recordId, expenseC3, "Expense 3");
+            updateExpend(conn, recordId, expenseCo, "Expense Other");
+
+            updateIncome(conn, recordId, incomeC1, "Income 1");
+            updateIncome(conn, recordId, incomeC2, "Income 2");
+            updateIncome(conn, recordId, incomeC3, "Income 3");
+            updateIncome(conn, recordId, incomeCo, "Income Other");
+
+            conn.commit();
+
+            ViewSheet D1 = new ViewSheet(getUserIdByRecordId(conn, recordId), sheetId);  
+            D1.setVisible(true);
+            this.dispose();
+            JOptionPane.showMessageDialog(null, "Data updated successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error updating data: " + e.getMessage());
+        }
+    }
+
+    private void updateExpend(Connection conn, int recordId, Double amount, String name) {
+        if (amount != null && amount >= 0) {
+            String query = "UPDATE Expense SET amount = ? WHERE record_id = ? AND expense_name = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setDouble(1, amount != null ? amount : 0);
+                stmt.setInt(2, recordId);
+                stmt.setString(3, name);
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                System.out.println("Error updating expense '" + name + "': " + e.getMessage());
+            }
+        }
+    }
+
+    private void updateIncome(Connection conn, int recordId, Double amount, String name) {
+        if (amount != null && amount >= 0) {
+            String query = "UPDATE Income SET amount = ? WHERE record_id = ? AND income_name = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setDouble(1, amount != null ? amount : 0);
+                stmt.setInt(2, recordId);
+                stmt.setString(3, name);
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                System.out.println("Error updating income '" + name + "': " + e.getMessage());
+            }
+        }
+    }
+    
+    // Method to get user_id by record_id
+    private int getUserIdByRecordId(Connection conn, int recordId) throws SQLException {
+        String query = "SELECT user_id FROM Record WHERE record_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, recordId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("user_id");
+                } else {
+                    throw new SQLException("Record not found with record_id: " + recordId);
+                }
+            }
         }
     }
     
@@ -270,14 +425,16 @@ public class EnterBudget extends javax.swing.JFrame {
     private void fetchSheetAndCategoryDetails() {
         try (Connection connection = DBconnection.connect()) {
             
-            String sheetQuery = "SELECT sheet_name FROM Sheet WHERE sheet_id = ?";
+            String sheetQuery = "SELECT sheet_name, unit FROM Sheet WHERE sheet_id = ?";
             try (PreparedStatement sheetStmt = connection.prepareStatement(sheetQuery)) {
                 sheetStmt.setInt(1, sheetId);
 
                 try (ResultSet sheetRs = sheetStmt.executeQuery()) {
                     if (sheetRs.next()) {
                         String sheetName = sheetRs.getString("sheet_name");
+                        String unit = sheetRs.getString("unit");
                         labelSheetname.setText(sheetName);
+                        labelUnit.setText(unit);
                     }
                 }
             }
@@ -351,6 +508,183 @@ public class EnterBudget extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Error fetching category names: " + e.getMessage());
         }
     }
+    
+    // Method to load data for adding a sheet
+    public void loadDataForAddSheet(final int recordId) {
+
+        SwingWorker<Map<String, Object>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Map<String, Object> doInBackground() throws Exception {
+                Map<String, Object> results = new HashMap<>();
+                Connection conn = null;
+
+                try {
+                    conn = DBconnection.connect();
+                    
+                    conn.setAutoCommit(false);
+
+                    String date = loadDate(conn, recordId);
+                    results.put("date", date);
+                    
+                    Map<String, Double> incomeData = loadIncomeData(conn, recordId);
+                    results.put("income", incomeData);
+                    
+                    Map<String, Double> expenseData = loadExpenseData(conn, recordId);
+                    results.put("expense", expenseData);
+
+                    conn.commit();
+                    return results;
+                } catch (SQLException e) {
+                    if (conn != null) {
+                        try {
+                            conn.rollback();
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                    throw e;
+                } finally {
+                    if (conn != null) {
+                        try {
+                            conn.close();
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    Map<String, Object> results = get();
+
+                    String date = (String) results.get("date");
+                    if (date != null) {
+                        dateSelect.setSelectedItem(date);
+                    }
+
+                    Map<String, Double> incomeData = (Map<String, Double>) results.get("income");
+                    if (incomeData != null) {
+                        incomec1.setText(String.valueOf(incomeData.getOrDefault("Income 1", 0.0)));
+                        incomec2.setText(String.valueOf(incomeData.getOrDefault("Income 2", 0.0)));
+                        incomec3.setText(String.valueOf(incomeData.getOrDefault("Income 3", 0.0)));
+                        incomeco.setText(String.valueOf(incomeData.getOrDefault("Income Other", 0.0)));
+                    }
+
+                    Map<String, Double> expenseData = (Map<String, Double>) results.get("expense");
+                    if (expenseData != null) {
+                        expensec1.setText(String.valueOf(expenseData.getOrDefault("Expense 1", 0.0)));
+                        expensec2.setText(String.valueOf(expenseData.getOrDefault("Expense 2", 0.0)));
+                        expensec3.setText(String.valueOf(expenseData.getOrDefault("Expense 3", 0.0)));
+                        expenseco.setText(String.valueOf(expenseData.getOrDefault("Expense Other", 0.0)));
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(null,
+                        "Error loading data: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+
+        worker.execute();
+    }
+
+    // Helper method to load date
+    private String loadDate(Connection conn, int recordId) throws SQLException {
+        String date = null;
+        String recordQuery = "SELECT date FROM Record WHERE record_id = ?";
+        try (PreparedStatement recordStmt = conn.prepareStatement(recordQuery)) {
+            recordStmt.setInt(1, recordId);
+            try (ResultSet rs = recordStmt.executeQuery()) {
+                if (rs.next()) {
+                    date = rs.getString("date");
+                }
+            }
+        }
+        return date;
+    }
+
+    // Helper method to load income data
+    private Map<String, Double> loadIncomeData(Connection conn, int recordId) throws SQLException {
+        Map<String, Double> incomeData = new HashMap<>();
+        String incomeQuery = "SELECT income_name, amount FROM Income WHERE record_id = ?";
+        try (PreparedStatement incomeStmt = conn.prepareStatement(incomeQuery)) {
+            incomeStmt.setInt(1, recordId);
+            try (ResultSet rs = incomeStmt.executeQuery()) {
+                while (rs.next()) {
+                    incomeData.put(rs.getString("income_name"), rs.getDouble("amount"));
+                }
+            }
+        }
+        return incomeData;
+    }
+
+    // Helper method to load expense data
+    private Map<String, Double> loadExpenseData(Connection conn, int recordId) throws SQLException {
+        Map<String, Double> expenseData = new HashMap<>();
+        String expenseQuery = "SELECT expense_name, amount FROM Expense WHERE record_id = ?";
+        try (PreparedStatement expenseStmt = conn.prepareStatement(expenseQuery)) {
+            expenseStmt.setInt(1, recordId);
+            try (ResultSet rs = expenseStmt.executeQuery()) {
+                while (rs.next()) {
+                    expenseData.put(rs.getString("expense_name"), rs.getDouble("amount"));
+                }
+            }
+        }
+        return expenseData;
+    }
+    
+    // Method to delete 
+    private void deleteRecordAndRelatedData(int recordId) {
+        Connection conn = null;
+        try {
+            conn = DBconnection.connect();
+            conn.setAutoCommit(false);
+            
+            String deleteIncomeQuery = "DELETE FROM Income WHERE record_id = ?";
+            try (PreparedStatement deleteIncomeStmt = conn.prepareStatement(deleteIncomeQuery)) {
+                deleteIncomeStmt.setInt(1, recordId);
+                deleteIncomeStmt.executeUpdate();
+            }
+            
+            String deleteExpenseQuery = "DELETE FROM Expense WHERE record_id = ?";
+            try (PreparedStatement deleteExpenseStmt = conn.prepareStatement(deleteExpenseQuery)) {
+                deleteExpenseStmt.setInt(1, recordId);
+                deleteExpenseStmt.executeUpdate();
+            }
+            
+            String deleteRecordQuery = "DELETE FROM Record WHERE record_id = ?";
+            try (PreparedStatement deleteRecordStmt = conn.prepareStatement(deleteRecordQuery)) {
+                deleteRecordStmt.setInt(1, recordId);
+                deleteRecordStmt.executeUpdate();
+            }
+
+            conn.commit();
+
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error deleting record: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close(); 
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     
     @SuppressWarnings("unchecked")
@@ -387,10 +721,11 @@ public class EnterBudget extends javax.swing.JFrame {
         labelec1 = new javax.swing.JLabel();
         labelic1 = new javax.swing.JLabel();
         labelHeading1 = new javax.swing.JLabel();
-        labelSheetname = new javax.swing.JLabel();
+        labelUnit = new javax.swing.JLabel();
         labelHeading3 = new javax.swing.JLabel();
         dateSelect = new javax.swing.JComboBox<>();
         saveButton1 = new javax.swing.JButton();
+        labelSheetname = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         labelLogo = new javax.swing.JLabel();
@@ -596,12 +931,11 @@ public class EnterBudget extends javax.swing.JFrame {
         labelHeading1.setText("Expenses");
         jPanel9.add(labelHeading1, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 40, -1, 40));
 
-        labelSheetname.setBackground(new java.awt.Color(6, 26, 45));
-        labelSheetname.setFont(new java.awt.Font("Roboto Black", 1, 18)); // NOI18N
-        labelSheetname.setForeground(new java.awt.Color(255, 255, 255));
-        labelSheetname.setText("Sheet Name");
-        labelSheetname.setOpaque(true);
-        jPanel9.add(labelSheetname, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 260, 40));
+        labelUnit.setBackground(new java.awt.Color(6, 26, 45));
+        labelUnit.setFont(new java.awt.Font("Roboto Black", 1, 18)); // NOI18N
+        labelUnit.setForeground(new java.awt.Color(255, 255, 255));
+        labelUnit.setText("Unit");
+        jPanel9.add(labelUnit, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 0, 50, 40));
 
         labelHeading3.setBackground(new java.awt.Color(6, 26, 45));
         labelHeading3.setFont(new java.awt.Font("Roboto Black", 1, 18)); // NOI18N
@@ -628,6 +962,13 @@ public class EnterBudget extends javax.swing.JFrame {
             }
         });
         jPanel9.add(saveButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 410, 100, 40));
+
+        labelSheetname.setBackground(new java.awt.Color(6, 26, 45));
+        labelSheetname.setFont(new java.awt.Font("Roboto Black", 1, 18)); // NOI18N
+        labelSheetname.setForeground(new java.awt.Color(255, 255, 255));
+        labelSheetname.setText("Sheet Name");
+        labelSheetname.setOpaque(true);
+        jPanel9.add(labelSheetname, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 210, 40));
 
         jPanel4.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 470, 470));
 
@@ -729,13 +1070,36 @@ public class EnterBudget extends javax.swing.JFrame {
     }//GEN-LAST:event_viewButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        deleteButton();
+        int choice = JOptionPane.showOptionDialog(
+            null,
+            "Do you want to delete the working Record?",
+            "Delete Confirmation",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            new Object[] { "Yes", "No" },
+            "No"
+        );
+
+        if (choice == JOptionPane.YES_OPTION) {
+            deleteRecordAndRelatedData(recordId);
+            ViewSheet D1 = new ViewSheet(userId, sheetId);
+            D1.setVisible(true);
+            this.dispose();
+            JOptionPane.showMessageDialog(null, "The working Record has been successfully deleted.");
+        } else if (choice == JOptionPane.NO_OPTION) {
+            //
+        }
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void saveButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButton1ActionPerformed
-        saveButton();
+        if (isUpdate) {
+            updateButton(recordId);  
+        } else {
+            saveButton();  
+        }
     }//GEN-LAST:event_saveButton1ActionPerformed
-
+    
     private void expensec1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_expensec1FocusGained
         if ("  Enter Categories Amounts".equals(expensec1.getText())) {
             expensec1.setText("");
@@ -823,6 +1187,7 @@ public class EnterBudget extends javax.swing.JFrame {
     private javax.swing.JLabel labelLogo;
     private javax.swing.JLabel labelPhoto;
     private javax.swing.JLabel labelSheetname;
+    private javax.swing.JLabel labelUnit;
     private javax.swing.JLabel labelec1;
     private javax.swing.JLabel labelec2;
     private javax.swing.JLabel labelec3;

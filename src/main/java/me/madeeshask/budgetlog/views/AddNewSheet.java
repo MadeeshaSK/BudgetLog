@@ -42,6 +42,7 @@ public class AddNewSheet extends javax.swing.JFrame {
         conScaleImage();
         conSetWindowProperties(); 
         consetLabelFont();
+        conFacusLoad();
         this.isUpdate = true;
     }
     
@@ -97,8 +98,6 @@ public class AddNewSheet extends javax.swing.JFrame {
     // add focusing in constructer for load
     public void conFacusLoad() {
         
-        sheetName.setFont(new java.awt.Font("Arial", java.awt.Font.ITALIC, 14));
-        incomec1.setFont(new java.awt.Font("Arial", java.awt.Font.ITALIC, 14));
         yearSelect.addActionListener(e -> monthSelect.requestFocus());
         monthSelect.addActionListener(e -> sheetName.requestFocus());
         sheetName.addActionListener(e -> unitSelect.requestFocus());
@@ -112,7 +111,7 @@ public class AddNewSheet extends javax.swing.JFrame {
 
     }
     
-    // delete button action
+    // delete button
     public void deleteButton() {
         int choice = JOptionPane.showOptionDialog(
             null,
@@ -126,12 +125,80 @@ public class AddNewSheet extends javax.swing.JFrame {
         );
 
         if (choice == JOptionPane.YES_OPTION) {
-            Dashboard D1 = new Dashboard(userId,sheetId);
-            D1.setVisible(true);
-            this.dispose();
-            JOptionPane.showMessageDialog(null, "The working sheet has been successfully deleted.");
+            Connection conn = null;
+            try {
+                conn = DBconnection.connect();
+                conn.setAutoCommit(false);
+                
+                String getRecordIdsQuery = "SELECT record_id FROM Record WHERE sheet_id = ?";
+                try (PreparedStatement recordStmt = conn.prepareStatement(getRecordIdsQuery)) {
+                    recordStmt.setInt(1, sheetId);
+                    ResultSet rs = recordStmt.executeQuery();
+                    
+                    while (rs.next()) {
+                        int recordId = rs.getInt("record_id");
+                        
+                        String deleteIncomeQuery = "DELETE FROM Income WHERE record_id = ?";
+                        try (PreparedStatement deleteIncomeStmt = conn.prepareStatement(deleteIncomeQuery)) {
+                            deleteIncomeStmt.setInt(1, recordId);
+                            deleteIncomeStmt.executeUpdate();
+                        }
+                        
+                        String deleteExpenseQuery = "DELETE FROM Expense WHERE record_id = ?";
+                        try (PreparedStatement deleteExpenseStmt = conn.prepareStatement(deleteExpenseQuery)) {
+                            deleteExpenseStmt.setInt(1, recordId);
+                            deleteExpenseStmt.executeUpdate();
+                        }
+                    }
+                }
+
+                String deleteCategoryQuery = "DELETE FROM Category WHERE sheet_id = ?";
+                try (PreparedStatement deleteCategoryStmt = conn.prepareStatement(deleteCategoryQuery)) {
+                    deleteCategoryStmt.setInt(1, sheetId);
+                    deleteCategoryStmt.executeUpdate();
+                }
+
+                String deleteTransactionQuery = "DELETE FROM Record WHERE sheet_id = ?";
+                try (PreparedStatement deleteTransactionStmt = conn.prepareStatement(deleteTransactionQuery)) {
+                    deleteTransactionStmt.setInt(1, sheetId);
+                    deleteTransactionStmt.executeUpdate();
+                }
+
+                String deleteSheetQuery = "DELETE FROM Sheet WHERE sheet_id = ? AND user_id = ?";
+                try (PreparedStatement deleteSheetStmt = conn.prepareStatement(deleteSheetQuery)) {
+                    deleteSheetStmt.setInt(1, sheetId);
+                    deleteSheetStmt.setInt(2, userId);
+                    deleteSheetStmt.executeUpdate();
+                }
+
+                conn.commit();
+
+                Dashboard D1 = new Dashboard(userId, 0);
+                D1.setVisible(true);
+                this.dispose();
+                JOptionPane.showMessageDialog(null, "The working sheet has been successfully deleted.");
+
+            } catch (SQLException e) {
+                if (conn != null) {
+                    try {
+                        conn.rollback();
+                    } catch (SQLException rollbackEx) {
+                        rollbackEx.printStackTrace();
+                    }
+                }
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error deleting the sheet: " + e.getMessage());
+            } finally {
+                if (conn != null) {
+                    try {
+                        conn.close(); 
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         } else if (choice == JOptionPane.NO_OPTION) {
-            //
+            
         }
     }
     
@@ -212,7 +279,6 @@ public class AddNewSheet extends javax.swing.JFrame {
         try (Connection conn = DBconnection.connect()) {
             conn.setAutoCommit(false);
 
-            // Insert into Sheet table
             String sheetQuery = "INSERT INTO Sheet (sheet_name, unit, year, month, user_id) VALUES (?, ?, ?, ?, ?)";
             int sheetId;
             try (PreparedStatement sheetStmt = conn.prepareStatement(sheetQuery, Statement.RETURN_GENERATED_KEYS)) {
@@ -223,7 +289,6 @@ public class AddNewSheet extends javax.swing.JFrame {
                 sheetStmt.setInt(5, userId);
                 sheetStmt.executeUpdate();
 
-                // Retrieve the generated sheet_id
                 try (ResultSet generatedKeys = sheetStmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         sheetId = generatedKeys.getInt(1);
@@ -233,7 +298,6 @@ public class AddNewSheet extends javax.swing.JFrame {
                 }
             }
 
-            // Insert categories into the Category table
             insertCategory(conn, sheetId, incomeC1.isEmpty() ? " income 1" : incomeC1, "Income");
             insertCategory(conn, sheetId, incomeC2.isEmpty() ? " income 2" : incomeC2, "Income");
             insertCategory(conn, sheetId, incomeC3.isEmpty() ? " income 3" : incomeC3, "Income");
@@ -243,8 +307,7 @@ public class AddNewSheet extends javax.swing.JFrame {
             insertCategory(conn, sheetId, expenseC3.isEmpty() ? " expense 3" : expenseC3, "Expense");
             insertCategory(conn, sheetId, "Other", "Expense");
             
-
-            conn.commit(); // Commit transaction
+            conn.commit(); 
             ViewSheet D1 = new ViewSheet(userId, sheetId);
             D1.setVisible(true);
             this.dispose();
@@ -363,9 +426,8 @@ public class AddNewSheet extends javax.swing.JFrame {
         }
 
         try (Connection conn = DBconnection.connect()) {
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false); 
 
-            // Update Sheet table
             String sheetUpdateQuery = "UPDATE Sheet SET sheet_name = ?, unit = ?, year = ?, month = ? WHERE sheet_id = ? AND user_id = ?";
             try (PreparedStatement sheetStmt = conn.prepareStatement(sheetUpdateQuery)) {
                 sheetStmt.setString(1, sheetname);
@@ -380,7 +442,6 @@ public class AddNewSheet extends javax.swing.JFrame {
                 }
             }
             
-            // Get the current max category_id for the given sheetId
             String getMaxCategoryIdQuery = "SELECT MAX(category_id) FROM Category WHERE sheet_id = ?";
             int maxCategoryId = 0;
 
@@ -394,8 +455,7 @@ public class AddNewSheet extends javax.swing.JFrame {
                 }
             }
             int categoryId = maxCategoryId - 7;
-
-            // Update or insert categories in the Category table
+            
             updateCategory(conn, sheetId, incomeC1.isEmpty() ? " income 1" : incomeC1, "Income", categoryId++);
             updateCategory(conn, sheetId, incomeC2.isEmpty() ? " income 2" : incomeC2, "Income", categoryId++);
             updateCategory(conn, sheetId, incomeC3.isEmpty() ? " income 3" : incomeC3, "Income", categoryId++);
@@ -405,7 +465,10 @@ public class AddNewSheet extends javax.swing.JFrame {
             updateCategory(conn, sheetId, expenseC3.isEmpty() ? " expense 3" : expenseC3, "Expense", categoryId++);
             updateCategory(conn, sheetId, "Other", "Expense", categoryId++);
 
-            conn.commit(); // Commit transaction
+            conn.commit(); 
+            ViewSheet D1 = new ViewSheet(userId, sheetId);
+            D1.setVisible(true);
+            this.dispose();
             JOptionPane.showMessageDialog(null, "Data updated successfully.");
 
         } catch (SQLException e) {
@@ -423,7 +486,6 @@ public class AddNewSheet extends javax.swing.JFrame {
         updateStmt.setInt(3, sheetId);
         updateStmt.setInt(4, categoryId);
 
-        // Execute the update query
         int rowsAffected = updateStmt.executeUpdate();
         
         
@@ -747,7 +809,7 @@ public class AddNewSheet extends javax.swing.JFrame {
 
     private void enterBudgetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enterBudgetButtonActionPerformed
         if (sheetId > 0) {
-            EnterBudget D1 = new EnterBudget(userId, sheetId); // Pass both userId and sheetId
+            EnterBudget D1 = new EnterBudget(userId, sheetId); 
             D1.setVisible(true);
             this.dispose();
         } else {

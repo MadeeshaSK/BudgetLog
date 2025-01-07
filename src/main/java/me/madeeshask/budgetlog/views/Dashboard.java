@@ -363,9 +363,23 @@ public class Dashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_addNewSheetButtonActionPerformed
 
     private void logoutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutButtonActionPerformed
-        Login D1 = new Login();
-        D1.setVisible(true);
-        this.dispose();
+        int choice = JOptionPane.showOptionDialog(
+        null,
+        "Do you want to logout?",
+        "Logout Confirmation",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.QUESTION_MESSAGE,
+        null,
+        new Object[] { "Yes", "No" },
+        "No"
+        );
+
+        if (choice == JOptionPane.YES_OPTION) {
+            Login D1 = new Login();
+            D1.setVisible(true);
+            this.dispose();
+        }
+
     }//GEN-LAST:event_logoutButtonActionPerformed
 
     private void enterBudgetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enterBudgetButtonActionPerformed
