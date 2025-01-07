@@ -409,11 +409,14 @@ public class ViewSheet extends javax.swing.JFrame {
             ) {
                 java.awt.Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 
-                if (row == 0) {
-                    cell.setBackground(java.awt.Color.decode("#FFFFFF"));
+                if (row == table.getRowCount() - 1) { // Last row
+                    cell.setBackground(java.awt.Color.decode("#444444"));
+                    cell.setForeground(java.awt.Color.decode("#FFFFFF"));
                 } else {
                     cell.setBackground(java.awt.Color.decode("#FFFFFF"));
+                    cell.setForeground(java.awt.Color.decode("#000000"));
                 }
+           
                 
                 this.setHorizontalAlignment(alignment);
                 return cell;
