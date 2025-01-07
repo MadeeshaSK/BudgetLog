@@ -7,6 +7,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.List;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,9 +23,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import me.madeeshask.budgetlog.database.DBconnection;
 import me.madeeshask.budgetlog.utils.Utils;
 
@@ -98,35 +106,31 @@ public class ViewSheet extends javax.swing.JFrame {
         loadExpenseDataForAllRecords();
         calculateBalanceForAllRows();
         populateEditColumn();
-        alignTableColumns();
+        handleRowClick();
     }
     
-    // load date
     public void loadDatesToTable() {
-        String query = "SELECT date FROM Record WHERE sheet_id = ?";
-
-        try (Connection connection = DBconnection.connect();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-
-            stmt.setInt(1, sheetId);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                
-                DefaultTableModel model = new DefaultTableModel();
-                model.addColumn("Date");
-
-                while (rs.next()) {
-                    String date = rs.getString("date");
-                    model.addRow(new Object[]{date});
-                }
-
-                DateTable.setModel(model);
+    String query = "SELECT record_id, date FROM Record WHERE sheet_id = ?";
+    try (Connection connection = DBconnection.connect();
+         PreparedStatement stmt = connection.prepareStatement(query)) {
+        stmt.setInt(1, sheetId);
+        try (ResultSet rs = stmt.executeQuery()) {
+            
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Record ID");  // Added new column
+            model.addColumn("Date");
+            while (rs.next()) {
+                int recordId = rs.getInt("record_id");  // Get record_id
+                String date = rs.getString("date");
+                model.addRow(new Object[]{recordId, date});  // Add both values to row
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error loading dates: " + e.getMessage(),
-                                          "Database Error", JOptionPane.ERROR_MESSAGE);
+            DateTable.setModel(model);
         }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Error loading dates: " + e.getMessage(),
+                                      "Database Error", JOptionPane.ERROR_MESSAGE);
     }
+}
     
     //load headers - income
     public void loadIncomeCategoriesAsHeaders() {
@@ -350,6 +354,11 @@ public class ViewSheet extends javax.swing.JFrame {
 
     public void tablepropDate() {
         setTableProperties(DateTable);
+        TableColumn column = DateTable.getColumnModel().getColumn(0);
+        column.setMinWidth(0);
+        column.setMaxWidth(0);
+        column.setWidth(0);
+        column.setResizable(false);
     }
 
     public void tablepropIncome() {
@@ -361,11 +370,12 @@ public class ViewSheet extends javax.swing.JFrame {
     }
 
     private void setTableProperties(javax.swing.JTable table) {
-        table.setEnabled(false);
+        
         table.getTableHeader().setBackground(java.awt.Color.decode("#07175A"));
         table.getTableHeader().setForeground(java.awt.Color.decode("#FFFFFF"));
         table.setFont(new Font("fonts/Roboto-Bold.ttf", Font.BOLD, 14));
         table.getTableHeader().setFont(new Font("fonts/Roboto-Bold.ttf", Font.BOLD, 14));
+        table.getTableHeader().setPreferredSize(new Dimension(100, 30));
 
         JScrollPane scrollPane = (JScrollPane) table.getParent().getParent();
         scrollPane.getViewport().setBackground(java.awt.Color.decode("#061A2D"));
@@ -373,7 +383,20 @@ public class ViewSheet extends javax.swing.JFrame {
         table.setBorder(BorderFactory.createLineBorder(java.awt.Color.decode("#061A2D"), 2));
         table.getTableHeader().setBorder(BorderFactory.createLineBorder(java.awt.Color.decode("#061A2D"), 2));
         scrollPane.setBorder(BorderFactory.createLineBorder(java.awt.Color.decode("#061A2D"), 2));
-
+        
+        final int alignment;
+        if (table.equals(EditTable) || table.equals(DateTable)) {
+            alignment = SwingConstants.CENTER;
+        } else {
+            alignment = SwingConstants.RIGHT;
+        }
+        
+        if (table.equals(EditTable)) {
+            table.setEnabled(true);
+        } else {
+            table.setEnabled(false);
+        }
+        
         table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
             @Override
             public java.awt.Component getTableCellRendererComponent(
@@ -385,13 +408,14 @@ public class ViewSheet extends javax.swing.JFrame {
                 int column
             ) {
                 java.awt.Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
+                
                 if (row == 0) {
                     cell.setBackground(java.awt.Color.decode("#FFFFFF"));
                 } else {
-                    cell.setBackground(java.awt.Color.decode("#838D96"));
+                    cell.setBackground(java.awt.Color.decode("#FFFFFF"));
                 }
-
+                
+                this.setHorizontalAlignment(alignment);
                 return cell;
             }
         });
@@ -412,9 +436,35 @@ public class ViewSheet extends javax.swing.JFrame {
     }
 
 
+    // redirect to edit 
+    public void handleRowClick() {
+        EditTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        EditTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int selectedRow = EditTable.getSelectedRow();
+                System.out.println("Selected Row: " + selectedRow);
 
+                if (selectedRow != -1) { 
+                    Object value = DateTable.getValueAt(selectedRow, 0); 
 
+                    if (value != null) {
+                        String recordIdS = value.toString(); 
+                        int recordId = Integer.parseInt(recordIdS);
+                        EnterBudget D1 = new EnterBudget(userId,sheetId,recordId);
+                        D1.setVisible(true);
+                        dispose(); 
 
+                    } else {
+                        System.out.println("No value in the selected row's 1st column.");
+                    }
+                } else {
+                    System.out.println("No row selected.");
+                }
+            }
+        });
+    }
+    
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -509,6 +559,7 @@ public class ViewSheet extends javax.swing.JFrame {
 
         jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1280, 100));
 
+        ExpenseTable.setBackground(new java.awt.Color(6, 26, 45));
         ExpenseTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -532,6 +583,9 @@ public class ViewSheet extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        ExpenseTable.setMinimumSize(new java.awt.Dimension(75, 500));
+        ExpenseTable.setPreferredSize(new java.awt.Dimension(375, 500));
+        ExpenseTable.setRowHeight(30);
         jScrollPane1.setViewportView(ExpenseTable);
         if (ExpenseTable.getColumnModel().getColumnCount() > 0) {
             ExpenseTable.getColumnModel().getColumn(0).setResizable(false);
@@ -541,8 +595,9 @@ public class ViewSheet extends javax.swing.JFrame {
             ExpenseTable.getColumnModel().getColumn(4).setResizable(false);
         }
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 110, 440, 650));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 110, 450, 650));
 
+        EditTable.setBackground(new java.awt.Color(6, 26, 45));
         EditTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -559,6 +614,9 @@ public class ViewSheet extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        EditTable.setMinimumSize(new java.awt.Dimension(15, 500));
+        EditTable.setPreferredSize(new java.awt.Dimension(75, 500));
+        EditTable.setRowHeight(30);
         jScrollPane2.setViewportView(EditTable);
         if (EditTable.getColumnModel().getColumnCount() > 0) {
             EditTable.getColumnModel().getColumn(0).setResizable(false);
@@ -566,6 +624,7 @@ public class ViewSheet extends javax.swing.JFrame {
 
         jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 110, 100, 650));
 
+        IncomeTable.setBackground(new java.awt.Color(6, 26, 45));
         IncomeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -589,6 +648,10 @@ public class ViewSheet extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        IncomeTable.setMaximumSize(new java.awt.Dimension(2147483647, 0));
+        IncomeTable.setMinimumSize(new java.awt.Dimension(75, 500));
+        IncomeTable.setPreferredSize(new java.awt.Dimension(75, 500));
+        IncomeTable.setRowHeight(30);
         jScrollPane3.setViewportView(IncomeTable);
         if (IncomeTable.getColumnModel().getColumnCount() > 0) {
             IncomeTable.getColumnModel().getColumn(0).setResizable(false);
@@ -598,21 +661,22 @@ public class ViewSheet extends javax.swing.JFrame {
             IncomeTable.getColumnModel().getColumn(4).setResizable(false);
         }
 
-        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 110, 440, 650));
+        jPanel1.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 110, 450, 650));
 
+        DateTable.setBackground(new java.awt.Color(6, 26, 45));
         DateTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Date"
+                "Date", "Record ID"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class
+                java.lang.String.class, java.lang.Double.class
             };
             boolean[] canEdit = new boolean [] {
-                false
+                false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -623,6 +687,9 @@ public class ViewSheet extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        DateTable.setMinimumSize(new java.awt.Dimension(15, 500));
+        DateTable.setPreferredSize(new java.awt.Dimension(75, 500));
+        DateTable.setRowHeight(30);
         jScrollPane4.setViewportView(DateTable);
         if (DateTable.getColumnModel().getColumnCount() > 0) {
             DateTable.getColumnModel().getColumn(0).setResizable(false);
@@ -630,6 +697,7 @@ public class ViewSheet extends javax.swing.JFrame {
 
         jPanel1.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, 100, 650));
 
+        BalanceTable.setBackground(new java.awt.Color(6, 26, 45));
         BalanceTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -653,12 +721,15 @@ public class ViewSheet extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        BalanceTable.setMinimumSize(new java.awt.Dimension(15, 500));
+        BalanceTable.setPreferredSize(new java.awt.Dimension(75, 500));
+        BalanceTable.setRowHeight(30);
         jScrollPane5.setViewportView(BalanceTable);
         if (BalanceTable.getColumnModel().getColumnCount() > 0) {
             BalanceTable.getColumnModel().getColumn(0).setResizable(false);
         }
 
-        jPanel1.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 110, 100, 650));
+        jPanel1.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1040, 110, 100, 650));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -668,7 +739,7 @@ public class ViewSheet extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 816, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         setSize(new java.awt.Dimension(1294, 824));
@@ -718,26 +789,6 @@ public class ViewSheet extends javax.swing.JFrame {
                 new ViewSheet(0,0).setVisible(true);
             }
         });
-    }
-    
-    // Method to align columns in all tables
-    private void alignTableColumns() {
-       DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-       leftRenderer.setHorizontalAlignment(JLabel.RIGHT);
-
-       DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-       centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-
-       for (int i = 0; i < IncomeTable.getColumnCount(); i++) {
-           IncomeTable.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
-       }
-       for (int i = 0; i < ExpenseTable.getColumnCount(); i++) {
-           ExpenseTable.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
-       }
-
-       DateTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
-//       BalanceTable.getColumnModel().getColumn(0).setCellRenderer(leftRenderer);
-       EditTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
