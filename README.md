@@ -4,7 +4,9 @@ A simple Java Swing desktop application for managing daily budget entries and mo
 
 ## Installation
 Here is the User Guide, read it: [User Guide](https://drive.google.com/file/d/1KxvN0-_-QrsTzImXhuUVR-XUYjbF_748/view?usp=sharing)
+
 Here is the installer for Windows OS, download and install: [Download Installer](https://github.com/MadeeshaSK/BudgetLog/releases/download/BudgetLog_v1/BudgetLog_v1_installer.zip)
+
 [Note: If you encounter issues during installation, try running the installer in Administrative Mode.]
 
 
