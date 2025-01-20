@@ -153,7 +153,7 @@ public class ViewSummary extends javax.swing.JFrame {
                                     break;
                                 default:
                                     break; 
-                            }
+                            } 
                             // fix error change label order
                             expenseCount++;
                         }
