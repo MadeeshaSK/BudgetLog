@@ -140,13 +140,13 @@ public class ViewSummary extends javax.swing.JFrame {
                         } else if ("Expense".equalsIgnoreCase(type)) {
                             switch (expenseCount) {
                                 case 0:
-                                    labelec3.setText(categoryName);
-                                    break;
-                                case 1:
                                     labelec1.setText(categoryName);
                                     break;
-                                case 2:
+                                case 1:
                                     labelec2.setText(categoryName);
+                                    break;
+                                case 2:
+                                    labelec3.setText(categoryName);
                                     break;
                                 case 3:
                                     labeleco.setText(categoryName);
@@ -154,6 +154,7 @@ public class ViewSummary extends javax.swing.JFrame {
                                 default:
                                     break; 
                             }
+                            // fix error change label order
                             expenseCount++;
                         }
                     }
