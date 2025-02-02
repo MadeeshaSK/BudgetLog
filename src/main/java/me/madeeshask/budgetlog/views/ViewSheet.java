@@ -508,6 +508,7 @@ public class ViewSheet extends javax.swing.JFrame {
         labelUnit = new javax.swing.JLabel();
         backButton = new javax.swing.JButton();
         editSheetButton = new javax.swing.JButton();
+        viewSummeryButton = new javax.swing.JButton();
         addbudgetButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         ExpenseTable = new javax.swing.JTable();
@@ -550,16 +551,16 @@ public class ViewSheet extends javax.swing.JFrame {
         labelSheetname.setForeground(new java.awt.Color(255, 255, 255));
         labelSheetname.setText("Sheet Name");
         labelSheetname.setOpaque(true);
-        jPanel7.add(labelSheetname, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 340, 40));
+        jPanel7.add(labelSheetname, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 270, 40));
 
         labelUnit.setBackground(new java.awt.Color(6, 26, 45));
         labelUnit.setFont(new java.awt.Font("Roboto Black", 1, 24)); // NOI18N
         labelUnit.setForeground(new java.awt.Color(255, 255, 255));
         labelUnit.setText("Unit");
         labelUnit.setOpaque(true);
-        jPanel7.add(labelUnit, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 20, 80, 40));
+        jPanel7.add(labelUnit, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 20, 50, 40));
 
-        jPanel5.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 10, 460, 80));
+        jPanel5.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 10, 350, 80));
 
         backButton.setBackground(new java.awt.Color(7, 23, 90));
         backButton.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
@@ -585,7 +586,20 @@ public class ViewSheet extends javax.swing.JFrame {
                 editSheetButtonActionPerformed(evt);
             }
         });
-        jPanel5.add(editSheetButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(970, 30, 150, 40));
+        jPanel5.add(editSheetButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 30, 130, 40));
+
+        viewSummeryButton.setBackground(new java.awt.Color(7, 23, 90));
+        viewSummeryButton.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+        viewSummeryButton.setForeground(new java.awt.Color(255, 255, 255));
+        viewSummeryButton.setText("Summary");
+        viewSummeryButton.setAlignmentY(1.0F);
+        viewSummeryButton.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        viewSummeryButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewSummeryButtonActionPerformed(evt);
+            }
+        });
+        jPanel5.add(viewSummeryButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 30, 130, 40));
 
         addbudgetButton.setBackground(new java.awt.Color(7, 23, 90));
         addbudgetButton.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
@@ -598,7 +612,7 @@ public class ViewSheet extends javax.swing.JFrame {
                 addbudgetButtonActionPerformed(evt);
             }
         });
-        jPanel5.add(addbudgetButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 30, 150, 40));
+        jPanel5.add(addbudgetButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 30, 150, 40));
 
         jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1280, 100));
 
@@ -628,7 +642,6 @@ public class ViewSheet extends javax.swing.JFrame {
         });
         ExpenseTable.setMinimumSize(new java.awt.Dimension(75, 600));
         ExpenseTable.setPreferredSize(new java.awt.Dimension(375, 600));
-        ExpenseTable.setRowHeight(20);
         jScrollPane1.setViewportView(ExpenseTable);
         if (ExpenseTable.getColumnModel().getColumnCount() > 0) {
             ExpenseTable.getColumnModel().getColumn(0).setResizable(false);
@@ -659,7 +672,6 @@ public class ViewSheet extends javax.swing.JFrame {
         });
         EditTable.setMinimumSize(new java.awt.Dimension(15, 600));
         EditTable.setPreferredSize(new java.awt.Dimension(75, 600));
-        EditTable.setRowHeight(20);
         jScrollPane2.setViewportView(EditTable);
         if (EditTable.getColumnModel().getColumnCount() > 0) {
             EditTable.getColumnModel().getColumn(0).setResizable(false);
@@ -693,7 +705,6 @@ public class ViewSheet extends javax.swing.JFrame {
         });
         IncomeTable.setMinimumSize(new java.awt.Dimension(75, 600));
         IncomeTable.setPreferredSize(new java.awt.Dimension(75, 600));
-        IncomeTable.setRowHeight(20);
         jScrollPane3.setViewportView(IncomeTable);
         if (IncomeTable.getColumnModel().getColumnCount() > 0) {
             IncomeTable.getColumnModel().getColumn(0).setResizable(false);
@@ -731,7 +742,6 @@ public class ViewSheet extends javax.swing.JFrame {
         });
         DateTable.setMinimumSize(new java.awt.Dimension(15, 600));
         DateTable.setPreferredSize(new java.awt.Dimension(75, 600));
-        DateTable.setRowHeight(20);
         jScrollPane4.setViewportView(DateTable);
         if (DateTable.getColumnModel().getColumnCount() > 0) {
             DateTable.getColumnModel().getColumn(0).setResizable(false);
@@ -765,7 +775,6 @@ public class ViewSheet extends javax.swing.JFrame {
         });
         BalanceTable.setMinimumSize(new java.awt.Dimension(15, 600));
         BalanceTable.setPreferredSize(new java.awt.Dimension(75, 600));
-        BalanceTable.setRowHeight(20);
         jScrollPane5.setViewportView(BalanceTable);
         if (BalanceTable.getColumnModel().getColumnCount() > 0) {
             BalanceTable.getColumnModel().getColumn(0).setResizable(false);
@@ -805,6 +814,12 @@ public class ViewSheet extends javax.swing.JFrame {
         D1.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_addbudgetButtonActionPerformed
+
+    private void viewSummeryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSummeryButtonActionPerformed
+        ViewSummary D1 = new ViewSummary(userId,sheetId);
+        D1.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_viewSummeryButtonActionPerformed
 
     
     public static void main(String args[]) {
@@ -860,5 +875,6 @@ public class ViewSheet extends javax.swing.JFrame {
     private javax.swing.JLabel labelLogo;
     private javax.swing.JLabel labelSheetname;
     private javax.swing.JLabel labelUnit;
+    private javax.swing.JButton viewSummeryButton;
     // End of variables declaration//GEN-END:variables
 }
