@@ -34,6 +34,15 @@ Here is the installer for Windows OS, download and install: [Download Installer]
 
 This project is licensed under the MIT License - see the [LICENSE](https://drive.google.com/file/d/1vKyz7fD0ZqcaPzlLoxb0RWljvvTnROhP/view?usp=sharing) file for details.
 
+----------------------------
+When running the application, errors were encountered. These will be fixed in the next version.  
+
+1) **Summary Interface Issue** – The order of expense labels was mismatched. (This has been corrected in the code.)  
+
+2) **Sheet Summary Visibility Issue** – Currently, only the top month's summary is visible in the sheet list. There is no option to view other months' summaries. A button will be added to the sheet view to allow users to view the summary for that specific sheet.  (This has been corrected in the code.)
+
+If you find any other errors, please inform me via email.
+
 
 
 
