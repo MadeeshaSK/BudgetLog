@@ -40,7 +40,7 @@ When running the application, errors were encountered. These will be fixed in th
 1) **Summary Interface Issue** – The order of expense labels was mismatched. (This has been corrected in the code.)  
 
 2) **Sheet Summary Visibility Issue** – Currently, only the top month's summary is visible in the sheet list. There is no option to view other months' summaries. A button will be added to the sheet view to allow users to view the summary for that specific sheet.  (This has been corrected in the code.)
-3) **When edit record and press enter it will save as new record, if click save button it will update as we expect.(This has not been corrected yet)
+3) **Edit record issue** - When edit record and press enter it will save as new record, if click save button it will update as we expect.(This has not been corrected yet)
 
 If you find any other errors, please inform me via email.
 
